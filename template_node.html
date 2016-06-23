@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Phone Sensor Visualization App</title>
+
+
+    <script type="text/javascript" src="//www.google.com/jsapi"></script>
+    
+    <script type="text/javascript">
+      var wsUrl = "wss://" + window.location.host + "/ws/sensor";
+      
+      var socket;
+      var tiltData, accelData;
+      var tiltOptions, accelOptions;
+      var tiltChart, accelChart;
+      
+      // Google Gauge
+      google.load("visualization", "1", {packages:["gauge"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        // Data for tilt chart
+        tiltData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['ç∂âEåXÇ´', 0],
+          ['ëOå„åXÇ´', 0]
+        ]);
+        
+        // Data for accel chart
+        accelData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['xé≤â¡ë¨ìx', 0]
+        ]);
+        
+        // Option for tilt chart
+        // If you want to set other options, please refer to https://developers.google.com/chart/interactive/docs/gallery/gauge
+        tiltOptions = {
+          width: 600, height: 180,
+          min: -90, max: 90,
+          redFrom: 70, redTo: 90,
+          yellowFrom:60, yellowTo: 70,
+          minorTicks: 5
+        };
+
+
+        // Option for accel chart
+        accelOptions = {
+          width: 600, height: 180,
+          min: -15, max: 15,
+          redFrom: 10, redTo: 15,
+          yellowFrom:7, yellowTo: 10,
+          minorTicks: 1
+        };
+        
+        tiltChart = new google.visualization.Gauge(document.getElementById('tiltChart'));
+        accelChart = new google.visualization.Gauge(document.getElementById('accelChart'));
+        
+        tiltChart.draw(tiltData, tiltOptions);
+        accelChart.draw(accelData, accelOptions);
+      };
+      
+      function connect() {
+        socket = new WebSocket(wsUrl);
+        socket.onmessage = function(e) {
+          var sensorData = JSON.parse(e.data);
+          
+          // Update temperature data
+          tiltData.setValue(0, 1, sensorData.tiltLR);
+          tiltData.setValue(1, 1, sensorData.tiltFB);
+          
+          // Update humidity data
+          accelData.setValue(0, 1, sensorData.accelX);
+          
+          tiltChart.draw(tiltData, tiltOptions);
+          accelChart.draw(accelData, accelOptions);
+        };
+      };
+      
+      function disconnect() {
+        socket.close();
+      };
+        
+    </script>
+
+<style>
+  body {
+    background-color: #26343F;
+  }
+  .main {
+    background-size: 100%;
+    background-repeat: repeat-x;
+    background: linear-gradient(to top right, rgba(29, 54, 73, 1), rgba(45, 63, 74, 0.98)), url(http://roadshow.mybluemix.net/images/i-l-pattern.png);
+    padding-left:30px; 
+  }
+  .logo {
+    font-size:16px; 
+    color: white;
+    font-family: sans-serif;
+    margin-top:12px; 
+    padding-left:10px; 
+    margin-bottom:15px;
+    display:inline-block;
+	}
+  .title {
+    font-size:48px; 
+    color: white;
+    font-family: sans-serif;
+    margin-top:20px; 
+    padding-left:40px; 
+    margin-bottom:0px;
+    display:inline-block;
+	}
+  .sub-title {
+    font-size:24px; 
+    color: #41D6C3;
+    font-family: sans-serif;
+    margin-top:10px; 
+    padding-left:40px; 
+    margin-bottom:10px;
+    display:block;
+	}
+</style>
+</head>
+<body>
+	<span class="logo" >IBM <b>Bluemix</b></span>
+	<section class="main">		
+		<div class="title">Phone Sensor Visualization App</div>
+		<div class="sub-title">Powered by Node-RED</div>
+	
+        <button onclick="connect()">ê⁄ë±</button>
+        <button onclick="disconnect()">êÿíf</button>
+        
+  <table class="columns">
+    <tr>
+      <td>
+        <div id="tiltChart" style="width: 600px; height: 180px;"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="accelChart" style="width: 600px; height: 180px;"></div>
+      </td>
+    </tr>
+  </table>
+
+</section>
+    	<span class="logo" >IBM Open Innovation Camp</span>
+</body>
+</html>
