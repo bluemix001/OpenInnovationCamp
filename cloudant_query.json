@@ -1,0 +1,19 @@
+{
+  "selector":{
+    "tiltLR": {
+      "$gt": 60
+    }
+  },
+  "fields": [
+    "timestamp",
+    "tiltLR",
+    "tiltFB",
+    "accelX"
+  ],
+  "sort": [
+    {
+      "tiltLR": "asc"
+    }
+  ],
+  "limit": 20
+}
